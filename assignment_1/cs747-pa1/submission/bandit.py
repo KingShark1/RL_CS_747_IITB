@@ -1,20 +1,40 @@
-# Import required libraries
 import numpy as np
+import argparse
 import matplotlib.pyplot as plt
 
-#reading bandit instance from file\
-path = '/home/kingshark1/Practise/RL_CS_747_IITB/assignment_1/cs747-pa1/instances/i-2.txt'
-bandits_values = [a for a in open(path, 'r')]
 
+#initializing argument parser from command line
+parser = argparse.ArgumentParser()
+
+#adding optional arguments
+parser.add_argument("-in", "--instance")
+parser.add_argument("-al", "--algorithm")
+parser.add_argument("-rs", "--randomSeed")
+parser.add_argument("-ep", "--epsilon")
+parser.add_argument("-hz", "--horizon")
+args = parser.parse_args()
+
+#sets global constants taken from command line
+if args.instance:
+  inst = args.instance
+if args.algorithm:
+  algo = args.algorithm
+if args.randomSeed:
+  r_seed = args.randomSeed
+if args.epsilon:
+  eps = args.epsilon
+if args.horizon:
+  horizon = args.horizon
+
+#initializes the random generator to given seed
+np.random.seed(r_seed)
 
 # Define Action class
-class Bandit:
+class Actions:
   def __init__(self, m):
     self.m = m
-    #self.horizon = horizon
     self.mean = 0
     self.N = 0
-    #self.reg = horizon * 1
   
   # Choose a random action
   def choose(self): 
@@ -26,7 +46,9 @@ class Bandit:
   def update(self, x):
     self.N += 1
     self.mean = (1 - 1.0 / self.N)*self.mean + 1.0 / self.N * x
-  
+
+
+#simulates epsilon greedy algorithm
 def eps_greedy(bandits, horizon, eps=0.02):
   """
   requires : 
@@ -56,42 +78,27 @@ def eps_greedy(bandits, horizon, eps=0.02):
   
   return reg
 
-def run_experiment(m1, m2, m3, eps, N):
-      
-  bandits = [Bandit(m1),  Bandit(m2),  Bandit(m3)]
-  
-  data = np.empty(N)
-  
-  for i in range(N):
-    # epsilon greedy
-    p = np.random.random()
-    if p < eps:
-      j = np.random.choice(3)
-    else:
-      j = np.argmax([a.mean for a in  bandits])
-    x =  bandits[j].choose()
-    #print(x)
-    bandits[j].update(x)
-  
-    # for the plot
-    data[i] = x
-  cumulative_average = np.cumsum(data) / (np.arange(N) + 1)
-  
-  
-  for a in  bandits:
-    print(a.mean)
-  
-  return cumulative_average
-  
-  
-if __name__ == '__main__':
-  m1 = 0.4
-  m2 = 0.3
-  m3 = 0.5 
-  m4 = 0.2
-  m5 = 0.1
-  bandits = [Bandit(m1),  Bandit(m2),  Bandit(m3), Bandit(m4), Bandit(m5)]
-  
-  horizon = 102400
-  eps_greedy_reg = eps_greedy(bandits, horizon=horizon)
-  print(f'Expected cumulative regret is : {eps_greedy_reg}')
+#simulates Upper Confidence Bound algorithm
+def UCB(eps=0.1):
+  """
+  """
+  return 0
+
+#simulates UCB algorithm with KL bound
+def KL_UCB(eps=0.1):
+  """
+  """
+  return 0
+
+#simulates thompson sampling algorithm
+def thompson_sampling(eps=0.1):
+  """
+  """
+  return 0
+
+# simulates thomson sampling algorithm with given
+# given hint about the prior on arms
+def th_samp_with_hint(eps=0.1):
+  """
+  """
+  return 0

@@ -15,6 +15,8 @@ class Bandit:
     #self.horizon = horizon
     self.mean = 0
     self.N = 0
+    self.success = 0
+    self.failure = 0
     #self.reg = horizon * 1
   
   # Choose a random action
@@ -26,6 +28,10 @@ class Bandit:
   # Update the action-value estimate
   def update(self, x):
     self.N += 1
+    if(x == 1):
+      self.success += 1
+    else:
+      self.failure += 1
     self.mean = (1 - 1.0 / self.N)*self.mean + 1.0 / self.N * x
 
 
@@ -112,7 +118,36 @@ def UCB(bandits, horizon, eps=0.1):
   #print(rew[0:10])
   reg = reg[-1]
   return reg
+
+# Simulates thomson sampling algorithm
+def thomson_sampling(bandits, horizon):
   
+  def calculate_beta(bandits):
+    updated_beta = np.empty(len([a.m for a in bandits]))
+    for j in range(len(bandits)):
+      updated_beta[j] = np.random.beta(bandits[j].success + 1, bandits[j].failure + 1)
+    return updated_beta
+
+  rew = np.empty(horizon)
+  max_expected_p = max([a.m for a in bandits])
+
+  for i in range(horizon):
+    beta_of_bandit = calculate_beta(bandits)
+    j = np.argmax(beta_of_bandit)  
+    x = bandits[j].pull_arm()
+    bandits[j].update(x)
+    rew[i] = x
+  
+  reg = max_expected_p * horizon - np.cumsum(rew)
+  #plotting
+  plt.plot(np.cumsum(rew)/(np.arange(horizon) + 1))
+  plt.plot(np.ones(102400)*bandits[0].m)
+  
+
+  plt.show()
+
+  return reg
+
 if __name__ == '__main__':
   m1 = 0.4
   m2 = 0.3
@@ -126,8 +161,9 @@ if __name__ == '__main__':
   #eps_greedy_reg = eps_greedy(bandits, horizon=horizon)
   #print(f'Expected cumulative regret is : {eps_greedy_reg}')
 
-  ucb_reg = UCB(bandits, horizon=horizon)
-  print(f'Expected cumulative regret for UCB is : {ucb_reg}')
+  #ucb_reg = UCB(bandits, horizon=horizon)
+  thomson_reg = thomson_sampling(bandits, horizon)
+  print(f'Expected cumulative regret for thomson sampling is : {thomson_reg}')
 
   
   
